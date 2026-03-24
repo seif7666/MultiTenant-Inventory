@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 public class Vehicle {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "vehicle_id")
     private UUID id;
     private String tenantId;

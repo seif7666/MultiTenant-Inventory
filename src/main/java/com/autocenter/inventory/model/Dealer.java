@@ -10,7 +10,7 @@ import java.util.UUID;
 @Entity
 @Data
 public class Dealer {
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Id
     @Column(name = "dealer_id")
     private UUID id;

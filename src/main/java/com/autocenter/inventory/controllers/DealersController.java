@@ -1,7 +1,10 @@
 package com.autocenter.inventory.controllers;
 
 import com.autocenter.inventory.dto.DealerDTO;
+import com.autocenter.inventory.service.IDealersService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -12,16 +15,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/dealers")
 @Validated
+@RequiredArgsConstructor
 public class DealersController {
 
+    private final IDealersService dealersService;
+
     @PostMapping
-    public ResponseEntity<String> addDealer(@Valid @RequestBody DealerDTO dealer){
-        // TODO
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<DealerDTO> addDealer(@Valid @RequestBody DealerDTO dealer){
+        return ResponseEntity.status(HttpStatus.CREATED).body(dealersService.createDealer(dealer));
     }
     @GetMapping("/{id}")
     public ResponseEntity<DealerDTO> getDealer(@PathVariable UUID id){
-        throw new UnsupportedOperationException("Not supported yet.");
+        return ResponseEntity.ok(dealersService.getDealer(id));
     }
 
     /**
@@ -33,16 +38,17 @@ public class DealersController {
      */
     @GetMapping
     public ResponseEntity<List<DealerDTO>> getDealers(@RequestParam Integer pageNum, @RequestParam Integer offset, @RequestParam String sort){
-        throw new UnsupportedOperationException("Not supported yet.");
+        return ResponseEntity.ok(dealersService.getDealers(pageNum,offset, sort));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateDealer(@PathVariable UUID id, @RequestBody DealerDTO dealer){
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<DealerDTO> updateDealer(@PathVariable UUID id, @RequestBody DealerDTO dealer){
+        return ResponseEntity.status(HttpStatus.OK).body(this.dealersService.updateDealer(id, dealer));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDealer(@PathVariable UUID id){
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.dealersService.deleteDealer(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Deleted");
     }
 }

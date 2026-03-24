@@ -1,3 +1,11 @@
 spring:
   application:
     name: MultiTenantInventory
+  datasource:
+    url: "jdbc:postgresql://localhost:5433/postgres"
+    username: postgres
+    password: mysecretpassword
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
