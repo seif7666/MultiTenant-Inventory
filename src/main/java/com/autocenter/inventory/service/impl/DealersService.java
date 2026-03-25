@@ -1,6 +1,7 @@
 package com.autocenter.inventory.service.impl;
 
 import com.autocenter.inventory.dto.DealerDTO;
+import com.autocenter.inventory.dto.PageControlDTO;
 import com.autocenter.inventory.exceptions.ResourceNotFoundException;
 import com.autocenter.inventory.mapper.DealerMapper;
 import com.autocenter.inventory.model.Dealer;
@@ -39,16 +40,16 @@ public class DealersService implements IDealersService {
     }
 
     @Override
-    public List<DealerDTO> getDealers(Integer pageNum, Integer pageSize, String sort) throws RuntimeException {
-        boolean pagingRequired= pageNum != null && pageSize != null;
-        boolean sortRequired= sort != null && !sort.isBlank();
+    public List<DealerDTO> getDealers(PageControlDTO pageControlDTO) throws RuntimeException {
+        boolean pagingRequired= pageControlDTO.getPageNumber() != null && pageControlDTO.getPageSize() != null;
+        boolean sortRequired= pageControlDTO.getSort() != null && !pageControlDTO.getSort().isBlank();
 
         if(pagingRequired && sortRequired)
-            return this.dealerRepository.findAll(PageRequest.of(pageNum,pageSize, Sort.by(sort))).get().map(dealerMapper::map).toList();
+            return this.dealerRepository.findAll(PageRequest.of(pageControlDTO.getPageNumber(),pageControlDTO.getPageSize(), Sort.by(pageControlDTO.getSort()))).get().map(dealerMapper::map).toList();
         else if(pagingRequired)
-            return this.dealerRepository.findAll(PageRequest.of(pageNum,pageSize)).get().map(dealerMapper::map).toList();
+            return this.dealerRepository.findAll(PageRequest.of(pageControlDTO.getPageNumber(),pageControlDTO.getPageSize())).get().map(dealerMapper::map).toList();
         else if(sortRequired)
-            return this.dealerRepository.findAll(Sort.by(sort)).stream().map(dealerMapper::map).toList();
+            return this.dealerRepository.findAll(Sort.by(pageControlDTO.getSort())).stream().map(dealerMapper::map).toList();
         return this.dealerRepository.findAll().stream().map(dealerMapper::map).toList();
     }
 

@@ -9,6 +9,8 @@ import java.util.UUID;
 
 @Data
 public class VehicleDTO {
+
+    private UUID id;
     private String tenantId;
     @NotEmpty
     @NotNull

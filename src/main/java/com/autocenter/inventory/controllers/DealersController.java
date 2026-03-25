@@ -1,6 +1,7 @@
 package com.autocenter.inventory.controllers;
 
 import com.autocenter.inventory.dto.DealerDTO;
+import com.autocenter.inventory.dto.PageControlDTO;
 import com.autocenter.inventory.service.IDealersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,8 @@ public class DealersController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<DealerDTO>> getDealers(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam String sort){
-        return ResponseEntity.ok(dealersService.getDealers(pageNum,pageSize, sort));
+    public ResponseEntity<List<DealerDTO>> getDealers(PageControlDTO pageControlDTO){
+        return ResponseEntity.ok(dealersService.getDealers(pageControlDTO));
     }
 
     @PatchMapping("/{id}")

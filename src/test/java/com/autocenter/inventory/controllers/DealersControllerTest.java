@@ -1,6 +1,7 @@
 package com.autocenter.inventory.controllers;
 
 import com.autocenter.inventory.dto.DealerDTO;
+import com.autocenter.inventory.dto.PageControlDTO;
 import com.autocenter.inventory.enums.SubscriptionType;
 import com.autocenter.inventory.model.Dealer;
 import com.autocenter.inventory.repos.DealerRepository;
@@ -79,7 +80,8 @@ class DealersControllerTest {
 
     @Test
     void testSortingIsWorking() {
-        List<DealerDTO>retrievedDealers= this.controller.getDealers(null, null, "name").getBody();
+        PageControlDTO pageControlDTO= new PageControlDTO(null, null, "name");
+        List<DealerDTO>retrievedDealers= this.controller.getDealers(pageControlDTO).getBody();
         List<Dealer> sortedDealers= this.initialDealers.stream().sorted(Comparator.comparing(Dealer::getName)).toList();
         assertEquals(sortedDealers.size(), retrievedDealers.size());
         for(int i = 0; i<sortedDealers.size(); i++){
@@ -89,14 +91,14 @@ class DealersControllerTest {
 
     @Test
     void testPaginationIsWorking() {
-        List<DealerDTO> allDealers= this.controller.getDealers(null, null, "name").getBody();
+        List<DealerDTO> allDealers= this.controller.getDealers(new PageControlDTO(null, null, "name")).getBody();
         int size= allDealers.size();
         int pageSize= 10;
         int pagesExpected= Math.ceilDiv(size,pageSize);
         System.out.println("pagesExpected="+pagesExpected);
         Iterator<DealerDTO> iterator= allDealers.iterator();
         for(int i = 0; i<pagesExpected; i++){
-            List<DealerDTO>pagedDealers= this.controller.getDealers(i, pageSize, "name").getBody();
+            List<DealerDTO>pagedDealers= this.controller.getDealers(new PageControlDTO( pageSize,i, "name")).getBody();
             System.out.println(pagedDealers.size());
             if(i<pagesExpected-1)
                 assertEquals(pageSize,pagedDealers.size());
