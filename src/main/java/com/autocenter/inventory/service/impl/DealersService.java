@@ -28,6 +28,7 @@ public class DealersService implements IDealersService {
         dealerValidator.validate(dealerDto);
         Dealer dealer = dealerMapper.map(dealerDto);
         this.dealerRepository.save(dealer);
+        dealerDto.setId(dealer.getId());
         return dealerDto;
     }
 

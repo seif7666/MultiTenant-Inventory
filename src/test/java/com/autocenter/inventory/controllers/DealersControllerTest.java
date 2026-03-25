@@ -13,9 +13,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +31,7 @@ class DealersControllerTest {
     @BeforeEach
     void setUp() {
         initialDealers= new LinkedList<>();
-        for(int i= 0 ; i<50; i++){
+        for(int i= 0 ; i<55; i++){
             Dealer dealer= new Dealer();
             dealer.setSubscriptionType((i&1) ==0 ? SubscriptionType.BASIC : SubscriptionType.PREMIUM);
             dealer.setEmail(generateRandomEmail());
@@ -63,19 +61,14 @@ class DealersControllerTest {
 
     @Test
     void addDealerSuccessfully() {
-        DealerDTO dealerDTO = new DealerDTO();
-        dealerDTO.setName("Dealer1");
-        dealerDTO.setEmail("dealer@com");
-        dealerDTO.setSubscriptionType(SubscriptionType.PREMIUM);
-        dealerDTO.setTenantId("TenantId");
+        DealerDTO dealerDTO = createDealerDTO();
         this.controller.addDealer(dealerDTO);
-        TypedQuery<Dealer> query= entityManager.createQuery("SELECT e FROM Dealer  e WHERE e.email= :email",Dealer.class);
-        query.setParameter("email",dealerDTO.getEmail());
-        Dealer savedDealer= query.getSingleResult();
+        Dealer savedDealer= retrieveDealerByEmail(dealerDTO.getEmail());
         DealerDTO retreivedDTO= controller.getDealer(savedDealer.getId()).getBody();
         assertEquals(dealerDTO.getName(), retreivedDTO.getName());
         assertEquals(dealerDTO.getSubscriptionType(), retreivedDTO.getSubscriptionType());
         assertEquals(dealerDTO.getTenantId(),retreivedDTO.getTenantId());
+        assertEquals(savedDealer.getId(),dealerDTO.getId());
     }
 
     @Test
@@ -85,15 +78,75 @@ class DealersControllerTest {
     }
 
     @Test
-    void getDealers() {
-        assertEquals(this.initialDealers.size(), this.controller.getDealers(null, null, null).getBody().size());
+    void testSortingIsWorking() {
+        List<DealerDTO>retrievedDealers= this.controller.getDealers(null, null, "name").getBody();
+        List<Dealer> sortedDealers= this.initialDealers.stream().sorted(Comparator.comparing(Dealer::getName)).toList();
+        assertEquals(sortedDealers.size(), retrievedDealers.size());
+        for(int i = 0; i<sortedDealers.size(); i++){
+            assertEquals(sortedDealers.get(i).getName(),retrievedDealers.get(i).getName());
+        }
+    }
+
+    @Test
+    void testPaginationIsWorking() {
+        List<DealerDTO> allDealers= this.controller.getDealers(null, null, "name").getBody();
+        int size= allDealers.size();
+        int pageSize= 10;
+        int pagesExpected= Math.ceilDiv(size,pageSize);
+        System.out.println("pagesExpected="+pagesExpected);
+        Iterator<DealerDTO> iterator= allDealers.iterator();
+        for(int i = 0; i<pagesExpected; i++){
+            List<DealerDTO>pagedDealers= this.controller.getDealers(i, pageSize, "name").getBody();
+            System.out.println(pagedDealers.size());
+            if(i<pagesExpected-1)
+                assertEquals(pageSize,pagedDealers.size());
+            for(DealerDTO dealerDTO: pagedDealers){
+                DealerDTO currentDTO= iterator.next();
+                assertEquals(dealerDTO.getName(),currentDTO.getName());
+            }
+        }
+        assertFalse(iterator.hasNext());
+
+
+
     }
 
     @Test
     void updateDealer() {
+        DealerDTO dealerDTO = createDealerDTO();
+        this.controller.addDealer(dealerDTO);
+        dealerDTO.setName("Updated Dealer");
+        dealerDTO.setTenantId(new Random().nextInt(Integer.MAX_VALUE)+"");
+        this.controller.updateDealer(dealerDTO.getId(), dealerDTO);
+        DealerDTO updatedDealer= this.controller.getDealer(dealerDTO.getId()).getBody();
+        assertEquals(dealerDTO.getName(), updatedDealer.getName());
+        assertEquals(dealerDTO.getSubscriptionType(), updatedDealer.getSubscriptionType());
+        assertEquals(dealerDTO.getTenantId(),updatedDealer.getTenantId());
     }
 
     @Test
     void deleteDealer() {
+        DealerDTO dealerDTO = createDealerDTO();
+        this.controller.addDealer(dealerDTO);
+        Dealer dealer= entityManager.find(Dealer.class, dealerDTO.getId());
+        assertNotNull(dealer);
+        this.controller.deleteDealer(dealerDTO.getId());
+        dealer= entityManager.find(Dealer.class, dealerDTO.getId());
+        assertNull(dealer);
+    }
+
+    private DealerDTO createDealerDTO(){
+        DealerDTO dealerDTO = new DealerDTO();
+        dealerDTO.setName("Dealer1");
+        dealerDTO.setEmail("dealer@com");
+        dealerDTO.setSubscriptionType(SubscriptionType.PREMIUM);
+        dealerDTO.setTenantId("TenantId");
+        return dealerDTO;
+    }
+
+    private Dealer retrieveDealerByEmail(String email){
+        TypedQuery<Dealer> query= entityManager.createQuery("SELECT e FROM Dealer  e WHERE e.email= :email",Dealer.class);
+        query.setParameter("email",email);
+        return query.getSingleResult();
     }
 }

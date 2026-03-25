@@ -32,13 +32,13 @@ public class DealersController {
     /**
      *
      * @param pageNum
-     * @param offset
+     * @param pageSize
      * @param sort
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<DealerDTO>> getDealers(@RequestParam Integer pageNum, @RequestParam Integer offset, @RequestParam String sort){
-        return ResponseEntity.ok(dealersService.getDealers(pageNum,offset, sort));
+    public ResponseEntity<List<DealerDTO>> getDealers(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam String sort){
+        return ResponseEntity.ok(dealersService.getDealers(pageNum,pageSize, sort));
     }
 
     @PatchMapping("/{id}")

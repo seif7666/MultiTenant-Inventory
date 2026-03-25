@@ -26,6 +26,7 @@ public class DealerMapper {
         dealerDTO.setEmail(dealer.getEmail());
         dealerDTO.setTenantId(dealer.getTenantId());
         dealerDTO.setSubscriptionType(dealer.getSubscriptionType());
+        dealerDTO.setId(dealer.getId());
         return dealerDTO;
     }
 }
