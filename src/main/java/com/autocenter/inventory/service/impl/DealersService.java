@@ -7,9 +7,11 @@ import com.autocenter.inventory.mapper.DealerMapper;
 import com.autocenter.inventory.model.Dealer;
 import com.autocenter.inventory.repos.DealerRepository;
 import com.autocenter.inventory.service.IDealersService;
+import com.autocenter.inventory.service.utilities.PageControlService;
 import com.autocenter.inventory.validation.impl.DealerValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ public class DealersService implements IDealersService {
     private final DealerRepository dealerRepository;
     private final DealerMapper dealerMapper;
     private final DealerValidator dealerValidator;
+    private final PageControlService pageControlService;
 
 
     public DealerDTO createDealer(DealerDTO dealerDto) throws RuntimeException{
@@ -41,16 +44,8 @@ public class DealersService implements IDealersService {
 
     @Override
     public List<DealerDTO> getDealers(PageControlDTO pageControlDTO) throws RuntimeException {
-        boolean pagingRequired= pageControlDTO.getPageNumber() != null && pageControlDTO.getPageSize() != null;
-        boolean sortRequired= pageControlDTO.getSort() != null && !pageControlDTO.getSort().isBlank();
-
-        if(pagingRequired && sortRequired)
-            return this.dealerRepository.findAll(PageRequest.of(pageControlDTO.getPageNumber(),pageControlDTO.getPageSize(), Sort.by(pageControlDTO.getSort()))).get().map(dealerMapper::map).toList();
-        else if(pagingRequired)
-            return this.dealerRepository.findAll(PageRequest.of(pageControlDTO.getPageNumber(),pageControlDTO.getPageSize())).get().map(dealerMapper::map).toList();
-        else if(sortRequired)
-            return this.dealerRepository.findAll(Sort.by(pageControlDTO.getSort())).stream().map(dealerMapper::map).toList();
-        return this.dealerRepository.findAll().stream().map(dealerMapper::map).toList();
+        Pageable pageable= pageControlService.getPageControl(pageControlDTO);
+        return this.dealerRepository.findAll(pageable).stream().map(dealerMapper::map).toList();
     }
 
     @Override

@@ -13,7 +13,7 @@ public class Vehicle {
     @Column(name = "vehicle_id")
     private UUID id;
     private String tenantId;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Dealer dealer;
     private Integer model;
     private String status;

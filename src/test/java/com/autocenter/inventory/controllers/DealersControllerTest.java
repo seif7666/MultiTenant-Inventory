@@ -3,6 +3,7 @@ package com.autocenter.inventory.controllers;
 import com.autocenter.inventory.dto.DealerDTO;
 import com.autocenter.inventory.dto.PageControlDTO;
 import com.autocenter.inventory.enums.SubscriptionType;
+import com.autocenter.inventory.helpers.DealersGenerator;
 import com.autocenter.inventory.model.Dealer;
 import com.autocenter.inventory.repos.DealerRepository;
 import jakarta.persistence.EntityManager;
@@ -13,12 +14,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+//@ContextConfiguration(classes = DealersGenerator.class)
 class DealersControllerTest {
 
     @Autowired
@@ -28,30 +32,14 @@ class DealersControllerTest {
     private List<Dealer> initialDealers;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private DealersGenerator dealersGenerator;
 
     @BeforeEach
     void setUp() {
-        initialDealers= new LinkedList<>();
-        for(int i= 0 ; i<55; i++){
-            Dealer dealer= new Dealer();
-            dealer.setSubscriptionType((i&1) ==0 ? SubscriptionType.BASIC : SubscriptionType.PREMIUM);
-            dealer.setEmail(generateRandomEmail());
-            dealer.setName(dealer.getEmail().substring(0,dealer.getEmail().indexOf("@")));
-            dealer.setTenantId(new Random().nextInt(Integer.MAX_VALUE)+"");
-            initialDealers.add(dealer);
-        }
+        initialDealers= dealersGenerator.generateDealers();
         this.dealerRepository.saveAll(initialDealers);
         System.out.println("========================Starting the Test=======================================");
-    }
-
-    private String generateRandomEmail() {
-        int length= new Random().nextInt(15)+5;
-        String email= "";
-        for(int i=0; i<length; i++){
-            char letter= (char)('a' + new Random().nextInt(26));
-            email+=letter;
-        }
-        return email+"@";
     }
 
     @AfterEach

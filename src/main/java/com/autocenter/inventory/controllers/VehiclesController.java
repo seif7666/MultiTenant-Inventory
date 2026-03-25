@@ -1,5 +1,6 @@
 package com.autocenter.inventory.controllers;
 
+import com.autocenter.inventory.dto.PageControlDTO;
 import com.autocenter.inventory.dto.VehicleDTO;
 import com.autocenter.inventory.service.IVehiclesService;
 import lombok.RequiredArgsConstructor;
@@ -45,17 +46,17 @@ public class VehiclesController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<VehicleDTO>> getAllVehicles(@RequestParam Map<String,String> params) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<List<VehicleDTO>> getAllVehicles(PageControlDTO pageControlDTO,  @RequestParam Map<String, String> params) {
+        return ResponseEntity.ok(this.vehiclesService.getVehicles(pageControlDTO, params));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<VehicleDTO> updateVehicle(@RequestBody VehicleDTO vehicle) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable UUID id, @RequestBody VehicleDTO vehicle) {
+        return ResponseEntity.ok().body(this.vehiclesService.updateVehicle(id,vehicle));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable UUID id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void deleteVehicle(@PathVariable UUID id) {
+        this.vehiclesService.deleteVehicle(id);
     }
 }
